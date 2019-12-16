@@ -95,6 +95,7 @@ class ApiAccess:
         params['sign'] = sign
         params['root'] = '/v2/private/order/create'
         res = await self.post_trade(params)
+        print(res)
         return res
 
     async def post_trade(self,queryParams):
@@ -147,3 +148,5 @@ class ApiAccess:
         params['root'] = '/v2/private/order/cancel'
         params['sign'] = sign
         return await self.remove(queryParams=params)
+
+

@@ -5,8 +5,8 @@ import aiohttp
 class ApiAccess:
     def __init__(self):
         self.base = 'https://api-testnet.bybit.com'
-        self._api_key = "IP0ZIgda9ycQ2avsKV"
-        self._secret = "errFTCXME5k91D0wxqa3ouqS5BClM7ECkAel"
+        self._api_key = "FrQVU4JWOOYaCYrfJs"
+        self._secret = "SGYSNiBqKUu92j23Lean0L5aZEzdcHodz1MQ"
 
     @staticmethod
     def get_signature(secret: str, req_params: dict):

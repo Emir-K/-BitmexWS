@@ -88,7 +88,7 @@ class ApiAccess:
         params['order_type'] = 'Limit'
         params['qty'] = quantity
         params['price'] = price
-        params['time_in_force'] = 'GoodTillCancel'
+        params['time_in_force'] = 'PostOnly'
         # params['take_profit'] = tp
         # params['reduce_only'] = 'true'
         sign = self.get_signature(self._secret, params)

@@ -84,6 +84,7 @@ class Trader:
 
     def start_trade(self):
         threading.Timer(ur.time_interval, self.start_trade).start()
+
         data = asyncio.run(access.access_position())
         try:
             size = data["result"][0]["size"]
@@ -105,6 +106,8 @@ class Trader:
             asyncio.run(self.first_trade(new_size=size,new_side='Buy', tp=tp_price))
             asyncio.run(self.first_trade())
 
+    async def remove_all_first(self):
+        await access.cancel_all_orders("BTCUSD")
 
 
 
@@ -114,6 +117,7 @@ if __name__ == "__main__":
     ur = parse_console_input()
     access = ApiAccess()
     trader = Trader(access,ur)
+    asyncio.run(trader.remove_all_first())
     asyncio.run(trader.first_trade())
     time.sleep(ur.time_interval)
     trader.start_trade()

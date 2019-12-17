@@ -149,4 +149,21 @@ class ApiAccess:
         params['sign'] = sign
         return await self.remove(queryParams=params)
 
+    async  def remove_all(self, queryParams):
+        async with aiohttp.ClientSession() as session:
+            query = f'{self.base}{queryParams["root"]}?api_key={self._api_key}' \
+                    f'&symbol={queryParams["symbol"]}' \
+                    f'&timestamp={queryParams["timestamp"]}' \
+                    f'&sign={queryParams["sign"]}'
+            response = await session.post(url=query)
+            return await response.json()
 
+    async def cancel_all_orders(self, symbol):
+        params = {}
+        params['api_key'] = self._api_key
+        params['timestamp'] = self.utc_now()
+        params['symbol'] = symbol
+        sign = self.get_signature(self._secret, params)
+        params['root'] = '/v2/private/order/cancelAll'
+        params['sign'] = sign
+        return await self.remove_all(queryParams=params)

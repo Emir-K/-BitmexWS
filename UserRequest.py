@@ -1,6 +1,9 @@
 
 
 class UserRequest:
+    """
+    Stores the user request to refer later in the program.
+    """
     def __init__(self,side, contract_size, time_interval,
                  take_profit, stop_loss):
         self.side = str.title(side)

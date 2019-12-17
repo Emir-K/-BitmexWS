@@ -2,7 +2,7 @@ import hmac
 from datetime import timezone, datetime
 import aiohttp
 
-class ApiAccess:
+class ApiAccessSell:
     def __init__(self):
         self.base = 'https://api-testnet.bybit.com'
         self._api_key = "FrQVU4JWOOYaCYrfJs"

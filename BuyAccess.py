@@ -2,7 +2,7 @@ import hmac
 from datetime import timezone, datetime
 import aiohttp
 
-class ApiAccess:
+class ApiAccessBuy:
     def __init__(self):
         self.base = 'https://api-testnet.bybit.com'
         self._api_key = "IP0ZIgda9ycQ2avsKV"
@@ -11,6 +11,8 @@ class ApiAccess:
     @staticmethod
     def get_signature(secret: str, req_params: dict):
         """
+        Creates a signature with given parameters
+        Required to sign a request before sending it.
         :param secret    : str, your api-secret
         :param req_params: dict, your request params
         :return: signature
@@ -29,6 +31,11 @@ class ApiAccess:
             return await response.json()
 
     async def access_order_book(self):
+        """
+        Makes an http call to server and fetches
+        order book
+        :return:
+        """
         params = {}
         params['position'] = '/v2/public/orderBook/L2'
         params['symbol'] = 'BTCUSD'
@@ -44,6 +51,10 @@ class ApiAccess:
             return await response.json()
 
     async def access_leverage(self):
+        """
+        Fetches User's leverage for all assets
+        :return:
+        """
         params = {}
         params['api_key'] = self._api_key
         params['timestamp'] = self.utc_now()
@@ -54,6 +65,11 @@ class ApiAccess:
         return data
 
     def highest_buy_lowest_sell(self, data):
+        """
+        Finds highest buy and lowest low
+        :param data: OrderBook
+        :return: list
+        """
         highest_buy = data["result"][0]['price']
         lowest_sell = data["result"][25]['price']
         return [highest_buy, lowest_sell]
@@ -68,6 +84,12 @@ class ApiAccess:
             return await response.json()
 
     async def set_leverage(self, symbol, leverage):
+        """
+
+        :param symbol: Coin to change the leverage
+        :param leverage: Integer to set
+        :return: http response
+        """
         params = {}
         params['api_key'] = self._api_key
         params['timestamp'] = self.utc_now()

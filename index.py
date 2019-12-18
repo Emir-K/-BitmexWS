@@ -23,38 +23,53 @@ def parse_console_input():
     parser.add_argument("interval", type=int, help="Time interval: how often a trade signal will"
                                          "be sent")
     parser.add_argument("tp", type=int, help="Take profit")
-    parser.add_argument("sl", type=int, help='Stop loss')
+    parser.add_argument("max_size", type=int, help='Max size')
+    parser.add_argument("double_size", type=float, help="set hourly"
+                                                        "prcnt to  double")
     args = parser.parse_args()
     side = ''
     size = 0
     interval = 0
     tp = 0
-    sl = 0
-
+    max_size = 0
+    double_size = 0.0
     try:
         side = args.side
         size = args.size
         interval = args.interval
         tp = args.tp
-        sl = args.sl
+        max_size = args.max_size
+        double_size = args.double_size
     except Exception as e:
-        print(f"Error! Could not read arguments. \n{e}")
         quit()
 
-    return UserRequest(side,size,interval,tp,sl)
+    return UserRequest(side,size,interval,tp,max_size, double_size)
 
 
 if __name__ == "__main__":
     ur = parse_console_input()
     trader = None
+    """
+    Decide which type of trader (Sell or Buy)
+    """
     if ur.get_side() == 'Buy':
         access = ApiAccessBuy()
         trader = TraderBuy(access, ur)
     elif ur.get_side() == 'Sell':
         access = ApiAccessSell()
         trader = TraderSell(access, ur)
+    """
+    REMOVE ALL TRADES FIRST!
+    """
     asyncio.run(trader.remove_all_first())
+    """
+    Start First Trade!
+    """
     asyncio.run(trader.trade())
+    """
+    wait 30 secs and
+    Put it into interval
+    """
     time.sleep(ur.time_interval)
     trader.start_trade()
 

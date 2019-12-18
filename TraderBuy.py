@@ -1,5 +1,7 @@
 import asyncio
 import threading
+import time
+
 
 class TraderBuy:
     def __init__(self, access, ur):
@@ -10,7 +12,7 @@ class TraderBuy:
         self.active_size = ur.contract_size
         self.tp = ur.get_tp()
 
-    async def trade(self, new_size=None, new_side=None, tp=None):
+    async def trade(self, new_size=None, new_side=None, new_tp=None):
         """
         Trades with 2 modes.
         If parameters are not given, their default value is None
@@ -21,8 +23,14 @@ class TraderBuy:
         :param tp: final tp value to send
         :return:
         """
-        data = await self.access.access_order_book()
+        data = await self.access.latest_info()
+    #         Get order book data and fetch the highest high and lowest low.
         buy_sell = self.access.highest_buy_lowest_sell(data)
+
+        """
+        If params are provided use them to update the trade
+        parameters.
+        """
 
         if new_size is not None:
             size = new_size
@@ -33,24 +41,23 @@ class TraderBuy:
         else:
             side = self.ur.get_side()
 
+
         symbol = 'BTCUSD'
         price = 0
+
         if side == 'Buy':
+            if self.ur.double_size > float(buy_sell[2]):
+                size  = size * 2
             price = float(buy_sell[0])
         elif side == 'Sell':
-            price = float(buy_sell[0])
-            if tp is not None:
-                price = tp
-                if price < float(buy_sell[0]):
-                    price = buy_sell[0]
+            price = float(buy_sell[1])
+            if new_tp is not None:
+                price = new_tp
+                if price < float(buy_sell[1]):
+                    price = buy_sell[1]
 
-        order_data = await self.access.place_order(side, symbol, price, size)
-        order_data = order_data["result"]
-        if new_side is not None:
-            self.order_id_sell = order_data["order_id"]
-        else:
-            self.order_id_buy = order_data["order_id"]
 
+        await self.access.place_order(side, symbol, price, size)
 
     def start_trade(self):
         """
@@ -60,27 +67,24 @@ class TraderBuy:
         :return:
         """
         threading.Timer(self.ur.time_interval, self.start_trade).start()
-
+        asyncio.run(self.remove_all_first())
+        if not self.ur.limit:
+            asyncio.run(self.trade())
+        time.sleep(3)
         data = asyncio.run(self.access.access_position())
         try:
             size = data["result"][0]["size"]
+        except TypeError as e:
+            size = 0
+        if self.ur.max_size < size:
+            self.ur.limit = True
+        else:
+            self.ur.limit = False
+        if size != 0:
             tp_price = data["result"][0]["entry_price"]
             tp_price = float(tp_price) + self.tp
-            print("Get data: average tp: ",tp_price)
-        except TypeError as e:
-            print("Type error setting size to 0")
-            size = 0
-        if size == 0:
-            asyncio.run(self.access.cancel_order('BTCUSD', self.order_id_buy))
-            asyncio.run(self.trade())
-        else:
-            if self.order_id_buy is not None:
-                asyncio.run(self.access.cancel_order('BTCUSD', self.order_id_buy))
-            if self.order_id_sell is not None:
-                asyncio.run(self.access.cancel_order('BTCUSD', self.order_id_sell))
-            print("Something executed!")
-            asyncio.run(self.trade(new_size=size, new_side='Sell', tp=tp_price))
-            asyncio.run(self.trade())
+            asyncio.run(self.trade(new_size=size, new_side='Sell', new_tp=tp_price))
+
 
     async def remove_all_first(self):
         await self.access.cancel_all_orders("BTCUSD")

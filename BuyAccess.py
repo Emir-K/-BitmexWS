@@ -24,22 +24,22 @@ class ApiAccessBuy:
     def utc_now():
         return int(datetime.now(tz=timezone.utc).timestamp() * 1000)
 
-    async def get_order_book(self, base, queryParams):
+    async def get_latest(self, base, queryParams):
         async with aiohttp.ClientSession() as session:
             query = f'{base}{queryParams["position"]}?symbol={queryParams["symbol"]}'
             response = await session.get(url=query)
             return await response.json()
 
-    async def access_order_book(self):
+    async def latest_info(self):
         """
         Makes an http call to server and fetches
         order book
         :return:
         """
         params = {}
-        params['position'] = '/v2/public/orderBook/L2'
+        params['position'] = '/v2/public/tickers'
         params['symbol'] = 'BTCUSD'
-        data =  await self.get_order_book(self.base, params)
+        data =  await self.get_latest(self.base, params)
         return data
 
     async def get_leverage(self, base, queryParams):
@@ -70,9 +70,10 @@ class ApiAccessBuy:
         :param data: OrderBook
         :return: list
         """
-        highest_buy = data["result"][0]['price']
-        lowest_sell = data["result"][25]['price']
-        return [highest_buy, lowest_sell]
+        highest_buy = data["result"][0]['bid_price']
+        lowest_sell = data["result"][0]['ask_price']
+        hour_pcnt = data["result"][0]['price_1h_pcnt']
+        return [highest_buy, lowest_sell, hour_pcnt]
 
     async def post_leverage(self, queryParams):
         async with aiohttp.ClientSession() as session:
@@ -112,18 +113,33 @@ class ApiAccessBuy:
         params['price'] = price
         params['time_in_force'] = 'PostOnly'
         # params['take_profit'] = tp
-        # params['reduce_only'] = 'true'
+        if side == 'Sell':
+            params['reduce_only'] = 'True'
         sign = self.get_signature(self._secret, params)
         params['sign'] = sign
         params['root'] = '/v2/private/order/create'
         res = await self.post_trade(params)
-        print(res)
+
         return res
 
     async def post_trade(self,queryParams):
         async with aiohttp.ClientSession() as session:
+            try:
+                if queryParams["reduce_only"]:
+                    query = f'{self.base}{queryParams["root"]}?api_key={self._api_key}' \
+                            f'&side={queryParams["side"]}&symbol={queryParams["symbol"]}' \
+                            f'&order_type={queryParams["order_type"]}&qty={queryParams["qty"]}' \
+                            f'&price={queryParams["price"]}&reduce_only={queryParams["reduce_only"]}' \
+                            f'&time_in_force={queryParams["time_in_force"]}' \
+                            f'&timestamp={queryParams["timestamp"]}' \
+                            f'&sign={queryParams["sign"]}'
+                    response = await session.post(url=query)
+                    return await response.json()
+            except KeyError as e:
+                pass
+
             query = f'{self.base}{queryParams["root"]}?api_key={self._api_key}' \
-                    f'&side={queryParams["side"]}&symbol={queryParams["symbol"]}'\
+                    f'&side={queryParams["side"]}&symbol={queryParams["symbol"]}' \
                     f'&order_type={queryParams["order_type"]}&qty={queryParams["qty"]}' \
                     f'&price={queryParams["price"]}&time_in_force={queryParams["time_in_force"]}' \
                     f'&timestamp={queryParams["timestamp"]}' \

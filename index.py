@@ -24,26 +24,29 @@ def parse_console_input():
                                          "be sent")
     parser.add_argument("tp", type=int, help="Take profit")
     parser.add_argument("max_size", type=int, help='Max size')
-    parser.add_argument("double_size", type=float, help="set hourly"
-                                                        "prcnt to  double")
+    parser.add_argument("half_buy_protection", type=float, help="Buy -> Positive, Sell -> Negative")
+    parser.add_argument("double_buy_protection", type=float, help="Buy -> Negative, sell ->Positive")
     args = parser.parse_args()
     side = ''
     size = 0
     interval = 0
     tp = 0
     max_size = 0
-    double_size = 0.0
+    half_buy_protection = 0.0
+    double_buy_protection = 0.0
     try:
         side = args.side
         size = args.size
         interval = args.interval
         tp = args.tp
         max_size = args.max_size
-        double_size = args.double_size
+        half_buy_protection = args.half_buy_protection
+        double_buy_protection = args.double_buy_protection
     except Exception as e:
         quit()
 
-    return UserRequest(side,size,interval,tp,max_size, double_size)
+    return UserRequest(side,size,interval,tp,max_size,
+                       half_buy_protection, double_buy_protection)
 
 
 if __name__ == "__main__":

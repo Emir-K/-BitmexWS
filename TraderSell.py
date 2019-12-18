@@ -51,8 +51,10 @@ class TraderSell:
                 if price > float(buy_sell[0]):
                     price = buy_sell[0]
         elif side == 'Sell':
-            if self.ur.double_size < float(buy_sell[2]):
-                size = size * 2
+            if self.ur.double_buy_protection < float(buy_sell[2]):
+                size = int(size * 2)
+            elif self.ur.half_buy_protection > float(buy_sell[2]):
+                size = int(size / 2)
             price = float(buy_sell[1])
 
         await self.access.place_order(side, symbol, price, size)

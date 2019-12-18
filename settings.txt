@@ -1,0 +1,10 @@
+quantity=
+take_profit=
+interval=
+max_size=
+double_buy_protection=True/False
+double_buy_percentage=(Buy -> Negative, sell ->Positive)
+half_buy_protection=True/False
+half_buy_percentage =  (Buy -> Positive, Sell -> Negative)
+
+

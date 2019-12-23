@@ -56,3 +56,12 @@
 {"table":"connected","action":"update","data":[{"users":17395,"bots":24509}]}
 {"table":"connected","action":"partial","data":[]}
 {"table":"connected","action":"update","data":[{"users":17534,"bots":24320}]}
+{"table":"connected","action":"partial","data":[]}
+{"table":"connected","action":"update","data":[{"users":17400,"bots":24318}]}
+{"table":"connected","action":"partial","data":[]}
+{"table":"connected","action":"update","data":[{"users":17600,"bots":24351}]}
+{"table":"connected","action":"partial","data":[]}
+{"table":"connected","action":"partial","data":[]}
+{"table":"connected","action":"update","data":[{"users":17673,"bots":24331}]}
+{"table":"connected","action":"partial","data":[]}
+{"table":"connected","action":"update","data":[{"users":17798,"bots":23948}]}

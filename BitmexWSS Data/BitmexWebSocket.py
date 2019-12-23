@@ -18,21 +18,24 @@ async def bitmex_ws():
         async for message in websocket:
             data = json.loads(message)
             try:
-                print(data)
 
-                if data["table"] == "trade" and int(data["data"][0]["size"]) > 100000 and data["data"][0]["side"] == "Buy":
-                    fs.write_long_orders_data(message)
+                if data["table"] == "trade":
+                    data_list = data["data"]
+                    for item in data_list:
+                        if int(item["size"] > 100000):
+                            if item["side"] == "Buy":
+                                fs.write_long_orders_data(item)
+                            else:
+                                fs.write_short_orders_data(item)
 
-
-                elif data["table"] == "trade" and int(data["data"][0]["size"]) > 100000 and data["data"][0]["side"] == "Sell":
-                    fs.write_short_orders_data(message)
-
-                if data["table"] == "execution" and int(data["data"][0]["leavesQty"]) > 100000 and data["data"][0]["side"] == "Buy":
-                    fs.write_long_liq_data(message)
-
-                elif data["table"] == "execution" and int(data["data"][0]["leavesQty"]) > 100000 and data["data"][0]["side"] == "Sell":
-                    fs.write_short_liq_data(message)
-
+                elif data["table"] == "liquidation":
+                    data_list = data["data"]
+                    for item in data_list:
+                        if int(item["leavesQty"] > 100000):
+                            if item["side"] == "Buy":
+                                fs.write_long_liq_data(item)
+                            else:
+                                fs.write_short_liq_data(item)
                 else:
                     if data["table"] == "funding":
                         fs.write_funding_data(message)
@@ -51,12 +54,6 @@ async def bitmex_ws():
 
                     elif data["table"] == "tradeBin1d":
                         fs.write_one_day_trade_data(message)
-
-
-
-
-
-
 
             except Exception as e:
                 print(e)

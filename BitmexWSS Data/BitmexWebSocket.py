@@ -33,9 +33,9 @@ async def bitmex_ws():
                     for item in data_list:
                         if int(item["leavesQty"] > 100000):
                             if item["side"] == "Buy":
-                                fs.write_long_liq_data(item)
-                            else:
                                 fs.write_short_liq_data(item)
+                            else:
+                                fs.write_long_liq_data(item)
                 else:
                     if data["table"] == "funding":
                         fs.write_funding_data(message)

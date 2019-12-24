@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+1day_trade_data.txt
+1hour_trade_data.txt
+1min_trade_data.txt
+5min_trade_data.txt
+connected_data.txt
+historic_funding_rate.txt
+long_orders.txt_data.txt
+short_orders.txt_data.txt
